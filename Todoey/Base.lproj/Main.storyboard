@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--ToDo LK-->
+        <!--LK ToDo-->
         <scene sceneID="JlE-fq-fLk">
             <objects>
                 <tableViewController id="hHa-t1-Xn8" customClass="TodoListViewController" customModule="Todoey" customModuleProvider="target" sceneMemberID="viewController">
@@ -31,7 +31,14 @@
                             <outlet property="delegate" destination="hHa-t1-Xn8" id="Qom-y9-hch"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="ToDo LK" id="ZSJ-r4-gSh"/>
+                    <navigationItem key="navigationItem" title="LK ToDo" id="ZSJ-r4-gSh">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="kZe-rA-Bj0">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <action selector="addButtonPrressed:" destination="hHa-t1-Xn8" id="mse-QP-E4y"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fZE-Wh-qe7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

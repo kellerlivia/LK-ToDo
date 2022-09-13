@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  Todoey
+//  LK ToDo
 //
-//  Created by Philipp Muellauer on 02/12/2019.
+//  Created by Lívia Carvalho Keller on 12/09/2022.
 //  Copyright © 2019 App Brewery. All rights reserved.
 //
 
@@ -16,7 +16,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     
-    let itemArray = ["Java", "Python", "Swift", "Firebase"]
+    var itemArray = ["Java", "Python", "Swift", "Firebase"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,5 +56,35 @@ class TodoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
+    //MARK: - Add New Items
     
+    @IBAction func addButtonPrressed(_ sender: UIBarButtonItem) {
+        
+        // variavel para armazenar o campo do texto
+        var textField = UITextField()
+        
+        // criando o alerta
+        let alert = UIAlertController(title: "Add New LK ToDo Item", message: "", preferredStyle: .alert)
+        // acao para adicionar o novo item
+        let action = UIAlertAction(title: "Add Item", style: .default) { action in
+            // o que acontecerá quando o usuário clicar no botão de adicionar item
+            
+            // adicionando o que o usuario escreveu no array
+            self.itemArray.append(textField.text!)
+            // atualizando a lista
+            self.tableView.reloadData()
+        }
+        
+        // criando uma acao no alerta
+        alert.addAction(action)
+        // colocando um campo de texto para o usuario adicionar o item
+        alert.addTextField { alertTextField in
+            alertTextField.placeholder = "Create new item"
+            // textField recebe o valor do que o usuario digitou
+            textField = alertTextField
+
+        }
+        // para o alerta aparecer na tela
+        present(alert, animated: true, completion: nil)
+    }
 }
