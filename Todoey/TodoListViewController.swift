@@ -23,7 +23,7 @@ class TodoListViewController: UITableViewController {
         
     }
     
-    //MARK: - Tableview Datasource Methods
+    //MARK: - TableView Datasource Methods
     
     // adicionando as celulas de acordo com o número de indices
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -38,5 +38,23 @@ class TodoListViewController: UITableViewController {
         return cell
     }
 
-}
+    //MARK: - TableView Delegate Methods
+    
+    // pegar a célula que foi clicada
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // printa texto do index da célula (linha que foi clicada)
+        // print(itemArray[indexPath.row])
+        
+        // colocando e tirando um acessorio
+        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+        } else {
+            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        }
+        
+        // deselecionar
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
+    
+}
