@@ -17,9 +17,17 @@ import UIKit
 class TodoListViewController: UITableViewController {
     
     var itemArray = ["Java", "Python", "Swift", "Firebase"]
+    
+    // armazenar dados
+    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // exibir a recuperacao de dados
+        if let items =  defaults.array(forKey: "ToDoListArray") as? [String] {
+            itemArray = items
+        }
         
     }
     
@@ -71,6 +79,10 @@ class TodoListViewController: UITableViewController {
             
             // adicionando o que o usuario escreveu no array
             self.itemArray.append(textField.text!)
+            
+            // armazenar o novo array
+            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
+            
             // atualizando a lista
             self.tableView.reloadData()
         }
