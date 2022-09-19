@@ -7,28 +7,18 @@
 //
 
 import UIKit
-
-// o nome do arquivo é o nome da classe
-// a main é uma Table View Controller
-// linkar o arquivo Swift a Main no inspetor
-// colocar um identifier na célula da Table View no inspetor
-// colocar barra de navegacão e editar
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
-    var itemArray = ["Java", "Python", "Swift", "Firebase"]
+    var itemArray = [Item]()
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    // armazenar dados
-    let defaults = UserDefaults.standard
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // exibir a recuperacao de dados
-        if let items =  defaults.array(forKey: "ToDoListArray") as? [String] {
-            itemArray = items
-        }
-        
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        loadItems()
     }
     
     //MARK: - TableView Datasource Methods
@@ -42,10 +32,18 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // constante para armezenar
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+        // colocando e tirando um acessorio
+        // valor = condicao ? valorVerdadeiro : valorFalso
+        cell.accessoryType = item.done ? .checkmark : .none
+        
         return cell
     }
-
+    
     //MARK: - TableView Delegate Methods
     
     // pegar a célula que foi clicada
@@ -53,17 +51,17 @@ class TodoListViewController: UITableViewController {
         // printa texto do index da célula (linha que foi clicada)
         // print(itemArray[indexPath.row])
         
-        // colocando e tirando um acessorio
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
+        
+        // verdadeiro ou falso (opostos)
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        saveItems()
         
         // deselecionar
         tableView.deselectRow(at: indexPath, animated: true)
     }
-
+    
     //MARK: - Add New Items
     
     @IBAction func addButtonPrressed(_ sender: UIBarButtonItem) {
@@ -77,14 +75,13 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { action in
             // o que acontecerá quando o usuário clicar no botão de adicionar item
             
+            let newItem = Item(context: self.context)
+            newItem.title = textField.text!
+            newItem.done = false
+            
             // adicionando o que o usuario escreveu no array
-            self.itemArray.append(textField.text!)
-            
-            // armazenar o novo array
-            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
-            
-            // atualizando a lista
-            self.tableView.reloadData()
+            self.itemArray.append(newItem)
+            self.saveItems()
         }
         
         // criando uma acao no alerta
@@ -94,9 +91,32 @@ class TodoListViewController: UITableViewController {
             alertTextField.placeholder = "Create new item"
             // textField recebe o valor do que o usuario digitou
             textField = alertTextField
-
+            
         }
         // para o alerta aparecer na tela
         present(alert, animated: true, completion: nil)
+    }
+    
+    //MARK: - Model Manupulation Methods
+    
+    func saveItems () {
+       
+        do {
+            try context.save()
+        } catch {
+            print("Error saving context \(error)")
+        }
+        
+        self.tableView.reloadData()
+    }
+    
+    func loadItems() {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from context \(error)")
+        }
+        
     }
 }
