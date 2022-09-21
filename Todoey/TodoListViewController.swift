@@ -8,11 +8,14 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
     
     var todoItems: Results<Item>?
     let realm = try! Realm()
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var selectedCategory : Category? {
         didSet {
@@ -23,8 +26,23 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-
+        tableView.separatorStyle = .none
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colourHex = selectedCategory?.colour {
+            
+            title = selectedCategory!.name
+            
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist")}
+            
+            if let navBarColour = UIColor(hexString: colourHex) {
+                navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
+                navBar.barTintColor = navBarColour
+                searchBar.barTintColor = navBarColour
+                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(navBarColour, returnFlat: true)]
+            }
+        }
     }
     
     //MARK: - TableView Datasource Methods
@@ -36,11 +54,18 @@ class TodoListViewController: UITableViewController {
     
     // retorna o texto em cada celula através do index
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // constante para armezenar
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
+            
+            // colocando o degrade nas celulas
+            if let colour = UIColor(hexString: selectedCategory!.colour)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(todoItems!.count)){
+                cell.backgroundColor = colour
+                
+                // costumizando o contraste do texto
+                cell.textLabel?.textColor = ContrastColorOf(colour, returnFlat: true)
+            }
             
             // colocando e tirando um acessorio
             // valor = condicao ? valorVerdadeiro : valorFalso
@@ -122,7 +147,21 @@ class TodoListViewController: UITableViewController {
         
         tableView.reloadData()
     }
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let itemForDeletion = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(itemForDeletion)
+                }
+            } catch {
+                print("Error deleting category, \(error)")
+            }
+        }
+    }
 }
+
+//MARK: - Search bar Methods
 
 extension TodoListViewController: UISearchBarDelegate {
     
